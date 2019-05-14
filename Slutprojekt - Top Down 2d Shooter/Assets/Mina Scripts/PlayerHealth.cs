@@ -17,7 +17,7 @@ namespace CompleteProject
 
         Animator anim;                                              // Reference to the Animator component.
         PlayerMovement playerMovement;                              // Reference to the player's movement.
-        //PlayerShooting playerShooting;                              // Reference to the PlayerShooting script.
+        PlayerShooting playerShooting;                              // Reference to the PlayerShooting script.
         bool isDead;                                                // Whether the player is dead.
         bool damaged;                                               // True when the player gets damaged.
 
@@ -27,7 +27,7 @@ namespace CompleteProject
             // Setting up the references.
             anim = GetComponent <Animator> ();
             playerMovement = GetComponent <PlayerMovement> ();
-            //playerShooting = GetComponentInChildren <PlayerShooting> ();
+            playerShooting = GetComponentInChildren <PlayerShooting> ();
 
             // Set the initial health of the player.
             currentHealth = startingHealth;
@@ -56,14 +56,14 @@ namespace CompleteProject
             isDead = true;
 
             // Turn off any remaining shooting effects.
-            //playerShooting.DisableEffects ();
+            playerShooting.DisableEffects ();
 
             // Tell the animator that the player is dead.
             anim.SetTrigger ("Die");
 
             // Turn off the movement and shooting scripts.
             playerMovement.enabled = false;
-            //playerShooting.enabled = false;
+            playerShooting.enabled = false;
         }
 
 
