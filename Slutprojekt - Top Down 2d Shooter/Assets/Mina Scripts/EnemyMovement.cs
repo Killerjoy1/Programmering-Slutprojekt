@@ -6,10 +6,10 @@ namespace CompleteProject
 {
 public class EnemyMovement : MonoBehaviour {
 
-	Transform player;
+	Transform player; //referenser
 	PlayerHealth playerHealth;
 	EnemyHealth enemyHealth;
-	UnityEngine.AI.NavMeshAgent nav;
+	UnityEngine.AI.NavMeshAgent nav; //Ai's navmesh
 
 	void Awake ()
 	{
@@ -22,13 +22,13 @@ public class EnemyMovement : MonoBehaviour {
 
 	void Update ()
 		{
-			if(enemyHealth.currentHealth > 0 && playerHealth.currentHealth > 0)
+			if(enemyHealth.currentHealth > 0 && playerHealth.currentHealth > 0) //om Spelarens och fiendens hp är mer än 0
 			{
-					nav.SetDestination (player.position);
+					nav.SetDestination (player.position); //så forstätter fienden att gå mot spelaren
 			}
 			else
 			{
-					nav.enabled = false;
+					nav.enabled = false; // annars stannar fienden
 			}
 		}
 	}

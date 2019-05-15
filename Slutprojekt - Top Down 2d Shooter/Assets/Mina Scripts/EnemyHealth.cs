@@ -4,35 +4,34 @@ namespace CompleteProject
 {
     public class EnemyHealth : MonoBehaviour
     {
-        public int startingHealth = 100;            // The amount of health the enemy starts the game with.
-        public int currentHealth;                   // The current health the enemy has.
-        public float sinkSpeed = 2.5f;              // The speed at which the enemy sinks through the floor when dead.
-        public int scoreValue = 10;                 // The amount added to the player's score when the enemy dies.
+        public int startingHealth = 100;            // Hur mycket hp fienden startar med
+        public int currentHealth;                   // Hp fienden har just nu
+        public float sinkSpeed = 2.5f;              // Hastigheten fienden sjunker ner i marken efter döden
+        public int scoreValue = 10;                 // Hur mycket poäng spelaren får när fienden dör
 
 
-        Animator anim;                              // Reference to the animator.
-        CapsuleCollider capsuleCollider;            // Reference to the capsule collider.
-        bool isDead;                                // Whether the enemy is dead.
-        bool isSinking;                             // Whether the enemy has started sinking through the floor.
-
+        Animator anim;                              // Animatorn
+        CapsuleCollider capsuleCollider;            // Capsulecollidern fienden har
+        bool isDead;                                // Om fienden är död
+        bool isSinking;                             // När fienden sjunker genom marken.
 
         void Awake ()
         {
-            // Setting up the references.
+            // Referenser
             anim = GetComponent <Animator> ();
             capsuleCollider = GetComponent <CapsuleCollider> ();
 
-            // Setting the current health when the enemy first spawns.
+            // Sätter fiendens hp just nu när den spawnar.
             currentHealth = startingHealth;
         }
 
 
         void Update ()
         {
-            // If the enemy should be sinking...
+            // När fienden skjunker
             if(isSinking)
             {
-                // ... move the enemy down by the sinkSpeed per second.
+                // Iprincip fiendens "skjunk" hastighet
                 transform.Translate (-Vector3.up * sinkSpeed * Time.deltaTime);
             }
         }
@@ -40,18 +39,18 @@ namespace CompleteProject
 
         public void TakeDamage (int amount, Vector3 hitPoint)
         {
-            // If the enemy is dead...
+            // Om spelaren dör
             if(isDead)
-                // ... no need to take damage so exit the function.
+                // stänger funktionen av, eller "startar" om
                 return;
 
-            // Reduce the current health by the amount of damage sustained.
+            // Ta bort hp beroende på hur mycket skada som gjorts från spelaren.
             currentHealth -= amount;
 
-            // If the current health is less than or equal to zero...
+            // Om hp är mindre än 0
             if(currentHealth <= 0)
             {
-                // ... the enemy is dead.
+                // Är fienden död
                 Death ();
             }
         }
@@ -59,32 +58,32 @@ namespace CompleteProject
 
         void Death ()
         {
-            // The enemy is dead.
+            // Fienden är död
             isDead = true;
 
-            // Turn the collider into a trigger so shots can pass through it.
+            // Ändra collider till en trigger så skott kan gå igenom den döda fienden-
             capsuleCollider.isTrigger = true;
 
-            // Tell the animator that the enemy is dead.
+            // Berätta för animatorn att fienden är död
             anim.SetTrigger ("Dead");
         }
 
 
         public void StartSinking ()
         {
-            // Find and disable the Nav Mesh Agent.
+            // Hitta och stäng av navmesh
             GetComponent <UnityEngine.AI.NavMeshAgent> ().enabled = false;
 
-            // Find the rigidbody component and make it kinematic (since we use Translate to sink the enemy).
+            // Hitta rigidbody och gör den kinematisk
             GetComponent <Rigidbody> ().isKinematic = true;
 
-            // The enemy should no sink.
+            // Fiendens ska inte sjunka
             isSinking = true;
 
-            // Increase the score by the enemy's score value.
-            //ScoreManager.score += scoreValue;
+            // Öka score beroende på fiendens score value
+            ScoreManager.score += scoreValue;
 
-            // After 2 seconds destory the enemy.
+            // Efter 2 sec raderas den döda fienden
             Destroy (gameObject, 2f);
         }
     }

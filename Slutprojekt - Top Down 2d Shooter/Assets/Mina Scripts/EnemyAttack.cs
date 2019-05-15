@@ -5,22 +5,22 @@ namespace CompleteProject
 {
     public class EnemyAttack : MonoBehaviour
     {
-        public float timeBetweenAttacks = 0.5f;     // The time in seconds between each attack.
-        public int attackDamage = 10;               // The amount of health taken away per attack.
+        public float timeBetweenAttacks = 0.5f;     // Tiden mellan varje attack
+        public int attackDamage = 10;               // Skada
 
-
-        Animator anim;                              // Reference to the animator component.
-        GameObject player;                          // Reference to the player GameObject.
-        PlayerHealth playerHealth;                  // Reference to the player's health.
-        EnemyHealth enemyHealth;                    // Reference to this enemy's health.
-        bool playerInRange;                         // Whether player is within the trigger collider and can be attacked.
-        float timer;                                // Timer for counting up to the next attack.
+        //Mina referenser
+        Animator anim;                              // Referens till animator
+        GameObject player;                          // Referens till spelaren
+        PlayerHealth playerHealth;                  // Referens till hp
+        EnemyHealth enemyHealth;                    // Referens till fiendens hp
+        bool playerInRange;                         // Om spelaren kan bli attackerad inom en radie
+        float timer;                                // Tid tills nästa attack
 
 
         void Awake ()
         {
-            // Setting up the references.
-            player = GameObject.FindGameObjectWithTag ("Player");
+            // Sätter upp alla referenser
+            player = GameObject.Find ("Player");
             playerHealth = player.GetComponent <PlayerHealth> ();
             enemyHealth = GetComponent<EnemyHealth>();
             anim = GetComponent <Animator> ();
@@ -29,10 +29,10 @@ namespace CompleteProject
 
         void OnTriggerEnter (Collider other)
         {
-            // If the entering collider is the player...
+            // Om spelaren rör sig in i fiendens collider
             if(other.gameObject == player)
             {
-                // ... the player is in range.
+                // Spelaren är inom collidern
                 playerInRange = true;
             }
         }
@@ -40,10 +40,10 @@ namespace CompleteProject
 
         void OnTriggerExit (Collider other)
         {
-            // If the exiting collider is the player...
+            // Om spelaren rör sig ut ur fiendens collider
             if(other.gameObject == player)
             {
-                // ... the player is no longer in range.
+                // Spelaren är utanför collidern
                 playerInRange = false;
             }
         }
@@ -51,20 +51,19 @@ namespace CompleteProject
 
         void Update ()
         {
-            // Add the time since Update was last called to the timer.
+            // Lägg till tid tills update var senast kallad av timern
             timer += Time.deltaTime;
 
-            // If the timer exceeds the time between attacks, the player is in range and this enemy is alive...
             if(timer >= timeBetweenAttacks && playerInRange  && enemyHealth.currentHealth > 0)
             {
                 // ... attack.
                 Attack ();
             }
 
-            // If the player has zero or less health...
+            // Om spelaren har mindre än 0 hp
             if(playerHealth.currentHealth <= 0)
             {
-                // ... tell the animator the player is dead.
+                // Animatorn spelar döds animationen
                 anim.SetTrigger ("PlayerDead");
             }
         }
@@ -72,13 +71,13 @@ namespace CompleteProject
 
         void Attack ()
         {
-            // Reset the timer.
+            // Starta om timern
             timer = 0f;
 
-            // If the player has health to lose...
+            // Om spelaren fortfarande har hp att förlora
             if(playerHealth.currentHealth > 0)
             {
-                // ... damage the player.
+                // Spelaren fortsätter skadas
                 playerHealth.TakeDamage (attackDamage);
             }
         }

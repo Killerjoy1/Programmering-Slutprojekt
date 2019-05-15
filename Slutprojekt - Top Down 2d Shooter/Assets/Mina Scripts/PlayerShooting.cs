@@ -5,29 +5,26 @@ namespace CompleteProject
 {
     public class PlayerShooting : MonoBehaviour
     {
-        public int damagePerShot = 20;                  // The damage inflicted by each bullet.
-        public float timeBetweenBullets = 0.15f;        // The time between each shot.
-        public float range = 100f;                      // The distance the gun can fire.
+        public int damagePerShot = 20;                  // Skada från varje kula
+        public float timeBetweenBullets = 0.15f;        // Tid mellan skott
+        public float range = 100f;                      // Distansen kulan kan fara
 
 
-        float timer;                                    // A timer to determine when to fire.
-        Ray shootRay = new Ray();                       // A ray from the gun end forwards.
-        RaycastHit shootHit;                            // A raycast hit to get information about what was hit.
-        int shootableMask;                              // A layer mask so the raycast only hits things on the shootable layer.
-        ParticleSystem gunParticles;                    // Reference to the particle system.
-        LineRenderer gunLine;                           // Reference to the line renderer.
-        Light gunLight;                                 // Reference to the light component.
-		public Light faceLight;								// Duh
-        float effectsDisplayTime = 0.2f;                // The proportion of the timeBetweenBullets that the effects will display for.
+        float timer;                                    // Timer som bestämmer när man kan skjuta
+        Ray shootRay = new Ray();                       // En ray från vapnets front
+        RaycastHit shootHit;                            // En raycast hit för att få information av vad som träffats
+        int shootableMask;                              // En layer mask så att raycasten endast träffar sånt som är på shootable layern
+
+        LineRenderer gunLine;                           // Ljus rendern
+        Light gunLight;                                 // Ljust komponenten
+		public Light faceLight;
+        float effectsDisplayTime = 0.2f;                // Hur länge effekterna från kulorna ska visas tills nästa kula.
 
 
         void Awake ()
         {
-            // Create a layer mask for the Shootable layer.
+            // Skapar en layer mask för den shootable layer masken
             shootableMask = LayerMask.GetMask ("Shootable");
-
-            // Set up the references.
-            gunParticles = GetComponent<ParticleSystem> ();
             gunLine = GetComponent <LineRenderer> ();
             gunLight = GetComponent<Light> ();
 			//faceLight = GetComponentInChildren<Light> ();
@@ -36,83 +33,74 @@ namespace CompleteProject
 
         void Update ()
         {
-            // Add the time since Update was last called to the timer.
+
             timer += Time.deltaTime;
 
 #if !MOBILE_INPUT
-            // If the Fire1 button is being press and it's time to fire...
+            // Om skjut knappen på musen trycks ner
 			if(Input.GetButton ("Fire1") && timer >= timeBetweenBullets && Time.timeScale != 0)
             {
-                // ... shoot the gun.
+                // Skjuter vapnet
                 Shoot ();
             }
 #else
-            // If there is input on the shoot direction stick and it's time to fire...
+            // När det finns input åt vilket håll man vill skjuta
             if ((CrossPlatformInputManager.GetAxisRaw("Mouse X") != 0 || CrossPlatformInputManager.GetAxisRaw("Mouse Y") != 0) && timer >= timeBetweenBullets)
             {
-                // ... shoot the gun
+                // skjuter vapnet.
                 Shoot();
             }
 #endif
-            // If the timer has exceeded the proportion of timeBetweenBullets that the effects should be displayed for...
+            // Om timern för effekterna slutar och man inte längre skjuter med musen
             if(timer >= timeBetweenBullets * effectsDisplayTime)
             {
-                // ... disable the effects.
+                // Ska effekterna stängas av
                 DisableEffects ();
             }
         }
 
-
         public void DisableEffects ()
         {
-            // Disable the line renderer and the light.
+            // Stäng av effekter
             gunLine.enabled = false;
 			faceLight.enabled = false;
             gunLight.enabled = false;
         }
 
-
         void Shoot ()
         {
-            // Reset the timer.
+            // Starta om timern
             timer = 0f;
 
-            // Enable the lights.
+            // Starta igång ljusen (effekterna)
             gunLight.enabled = true;
 			faceLight.enabled = true;
 
-            // Stop the particles from playing if they were, then start the particles.
-            gunParticles.Stop ();
-            gunParticles.Play ();
-
-            // Enable the line renderer and set it's first position to be the end of the gun.
+            // Ljus rendern ska vara framför vapnet
             gunLine.enabled = true;
             gunLine.SetPosition (0, transform.position);
 
-            // Set the shootRay so that it starts at the end of the gun and points forward from the barrel.
+            // rayen ska starta från framdelen av vapnet
             shootRay.origin = transform.position;
             shootRay.direction = transform.forward;
 
-            // Perform the raycast against gameobjects on the shootable layer and if it hits something...
+            // starta raycasten ifall något träffar ett objekt som hat shootable
             if(Physics.Raycast (shootRay, out shootHit, range, shootableMask))
             {
-                // Try and find an EnemyHealth script on the gameobject hit.
+                // Försök att hitta fienends health script när fienend blir träffad
                 EnemyHealth enemyHealth = shootHit.collider.GetComponent <EnemyHealth> ();
 
-                // If the EnemyHealth component exist...
+                // Om scriptet finns
                 if(enemyHealth != null)
                 {
-                    // ... the enemy should take damage.
+                    // så ska fienden ta skada
                     enemyHealth.TakeDamage (damagePerShot, shootHit.point);
                 }
-
-                // Set the second position of the line renderer to the point the raycast hit.
                 gunLine.SetPosition (1, shootHit.point);
             }
-            // If the raycast didn't hit anything on the shootable layer...
+
             else
             {
-                // ... set the second position of the line renderer to the fullest extent of the gun's range.
                 gunLine.SetPosition (1, shootRay.origin + shootRay.direction * range);
             }
         }
